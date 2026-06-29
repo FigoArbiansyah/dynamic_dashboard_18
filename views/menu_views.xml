@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Root Menu -->
+        <menuitem id="menu_dynamic_dashboard_root"
+                  name="Dynamic Dashboard"
+                  sequence="200"
+                  groups="dynamic_dashboard.group_dashboard_user"/>
+
+        <!-- Configuration submenu (Manager only) -->
+        <menuitem id="menu_dynamic_dashboard_config"
+                  name="Configuration"
+                  parent="menu_dynamic_dashboard_root"
+                  sequence="100"
+                  groups="dynamic_dashboard.group_dashboard_manager"/>
+
+        <menuitem id="menu_dashboard_boards"
+                  name="Dashboards"
+                  parent="menu_dynamic_dashboard_config"
+                  action="action_dashboard_board"
+                  sequence="10"
+                  groups="dynamic_dashboard.group_dashboard_manager"/>
+
+        <menuitem id="menu_dashboard_components"
+                  name="Components"
+                  parent="menu_dynamic_dashboard_config"
+                  action="action_dashboard_component"
+                  sequence="20"
+                  groups="dynamic_dashboard.group_dashboard_manager"/>
+
+    </data>
+</odoo>
