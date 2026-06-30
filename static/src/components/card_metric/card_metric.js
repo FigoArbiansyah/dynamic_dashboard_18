@@ -43,7 +43,7 @@ export class CardMetric extends Component {
     }
 
     get isClickable() {
-        return !!this.props.comp.click_action_id && !!this.props.onCardClick;
+        return (!!this.props.comp.click_action_id || !!this.props.comp.click_model) && !!this.props.onCardClick;
     }
 
     handleClick() {

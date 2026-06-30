@@ -142,7 +142,7 @@
                                     </div>
                                 </t>
                                 <t t-else="">
-                                    <ChartWidget comp="comp"/>
+                                    <ChartWidget comp="comp" onChartClick="(label) => this.onChartClick(comp, label)"/>
                                 </t>
                             </div>
                         </t>

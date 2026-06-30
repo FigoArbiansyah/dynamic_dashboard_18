@@ -168,6 +168,7 @@ class DashboardComponent(models.Model):
             data['chart_type'] = self.chart_type
             data['chart_legend'] = self.chart_legend
             data['chart_label'] = self.chart_label or self.name
+            data['group_by_field'] = self.group_by_field_id.name if self.group_by_field_id else None
             data['labels'] = labels
             data['values'] = values
 

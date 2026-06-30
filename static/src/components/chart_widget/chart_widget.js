@@ -11,7 +11,10 @@ const CHART_COLORS = [
 
 export class ChartWidget extends Component {
     static template = "dynamic_dashboard_18.ChartWidget";
-    static props = { comp: Object };
+    static props = {
+        comp: Object,
+        onChartClick: { type: Function, optional: true },
+    };
 
     setup() {
         this.canvasRef = useRef("canvas");
@@ -77,6 +80,20 @@ export class ChartWidget extends Component {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    onHover: (event, activeElements) => {
+                        const target = event.native.target;
+                        if (target) {
+                            target.style.cursor = activeElements.length ? 'pointer' : 'default';
+                        }
+                    },
+                    onClick: (event, activeElements) => {
+                        if (activeElements && activeElements.length > 0 && this.props.onChartClick) {
+                            const firstElement = activeElements[0];
+                            const dataIndex = firstElement.index;
+                            const label = this._chart.data.labels[dataIndex];
+                            this.props.onChartClick(label);
+                        }
+                    },
                     plugins: {
                         legend: {
                             display: comp.chart_legend !== false,

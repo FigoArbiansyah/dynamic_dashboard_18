@@ -202,11 +202,60 @@ export class DynamicDashboard extends Component {
     }
 
     onCardClick(comp) {
-        if (!comp.click_action_id) return;
+        let parsedDomain = [];
+        if (comp.click_domain) {
+            try {
+                parsedDomain = JSON.parse(comp.click_domain);
+            } catch (e) {
+                parsedDomain = comp.click_domain;
+            }
+        }
+
+        if (comp.click_action_id) {
+            this.action.doAction({
+                type: "ir.actions.act_window",
+                id: comp.click_action_id,
+                domain: parsedDomain,
+            });
+        } else if (comp.click_model) {
+            this.action.doAction({
+                type: "ir.actions.act_window",
+                name: comp.label || comp.name,
+                res_model: comp.click_model,
+                views: [[false, "list"], [false, "form"]],
+                domain: parsedDomain,
+                target: "current",
+            });
+        }
+    }
+
+    onChartClick(comp, label) {
+        if (!comp.click_model) return;
+
+        let parsedDomain = [];
+        if (comp.click_domain) {
+            try {
+                parsedDomain = JSON.parse(comp.click_domain);
+            } catch (e) {
+                parsedDomain = comp.click_domain;
+            }
+        }
+
+        if (comp.group_by_field && typeof parsedDomain === "object" && Array.isArray(parsedDomain)) {
+            let labelValue = label;
+            if (label === "N/A") {
+                labelValue = false;
+            }
+            parsedDomain.push([comp.group_by_field, "=", labelValue]);
+        }
+
         this.action.doAction({
             type: "ir.actions.act_window",
-            id: comp.click_action_id,
-            domain: comp.click_domain ? JSON.parse(comp.click_domain) : [],
+            name: `${comp.label || comp.name}: ${label}`,
+            res_model: comp.click_model,
+            views: [[false, "list"], [false, "form"]],
+            domain: parsedDomain,
+            target: "current",
         });
     }
 }
