@@ -3,7 +3,7 @@
 import { Component } from "@odoo/owl";
 
 export class CardMetric extends Component {
-    static template = "dynamic_dashboard.CardMetric";
+    static template = "dynamic_dashboard_18.CardMetric";
     static props = {
         comp: Object,
         onCardClick: { type: Function, optional: true },
@@ -22,27 +22,24 @@ export class CardMetric extends Component {
     }
 
     get cardStyle() {
-        const color = this.props.comp.color || "#4F46E5";
-        const style = this.props.comp.card_style || "solid";
-        if (style === "solid") {
-            return `background-color: ${color}; color: #fff;`;
-        } else if (style === "outline") {
-            return `border: 2px solid ${color}; color: ${color};`;
-        } else if (style === "gradient") {
-            return `background: linear-gradient(135deg, ${color}dd, ${color}88); color: #fff;`;
-        } else if (style === "soft") {
-            return `background-color: ${color}22; color: ${color}; border: 1px solid ${color}44;`;
+        const rawColor = this.props.comp.color || "#4F46E5";
+        const color = rawColor.startsWith("#") ? rawColor : "#" + rawColor;
+        
+        let rgbStr = "79, 70, 229";
+        const hex = color.replace("#", "");
+        if (hex.length === 6) {
+            const r = parseInt(hex.substring(0, 2), 16);
+            const g = parseInt(hex.substring(2, 4), 16);
+            const b = parseInt(hex.substring(4, 6), 16);
+            rgbStr = `${r}, ${g}, ${b}`;
+        } else if (hex.length === 3) {
+            const r = parseInt(hex.substring(0, 1) + hex.substring(0, 1), 16);
+            const g = parseInt(hex.substring(1, 2) + hex.substring(1, 2), 16);
+            const b = parseInt(hex.substring(2, 3) + hex.substring(2, 3), 16);
+            rgbStr = `${r}, ${g}, ${b}`;
         }
-        return "";
-    }
-
-    get iconStyle() {
-        const color = this.props.comp.color || "#4F46E5";
-        const style = this.props.comp.card_style || "solid";
-        if (style === "solid" || style === "gradient") {
-            return "color: rgba(255,255,255,0.85);";
-        }
-        return `color: ${color};`;
+        
+        return `--dd-card-color: ${color}; --dd-card-color-rgb: ${rgbStr};`;
     }
 
     get isClickable() {

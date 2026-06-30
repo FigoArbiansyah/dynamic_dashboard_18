@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <templates xml:space="preserve">
 
-<t t-name="dynamic_dashboard.ConfigDialog" owl="1">
+<t t-name="dynamic_dashboard_18.ConfigDialog" owl="1">
     <Dialog title="props.component ? 'Edit Component' : 'Add Component'" size="'lg'">
 
         <div class="dd-config-dialog">

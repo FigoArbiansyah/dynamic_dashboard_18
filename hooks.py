@@ -12,7 +12,7 @@ def pre_init_hook(env):
     manifest, leaving ghost records in the database whose arch may
     be NULL — which causes ValueError on view loading.
     """
-    _logger.info("dynamic_dashboard: cleaning up orphaned view records...")
+    _logger.info("dynamic_dashboard_18: cleaning up orphaned view records...")
 
     # Delete all ir.ui.view records owned by this module
     # (they will be recreated from the current XML files on upgrade)
@@ -20,13 +20,13 @@ def pre_init_hook(env):
         DELETE FROM ir_ui_view
         WHERE id IN (
             SELECT res_id FROM ir_model_data
-            WHERE module = 'dynamic_dashboard'
+            WHERE module IN ('dynamic_dashboard', 'dynamic_dashboard_18')
               AND model = 'ir.ui.view'
         )
     """)
     env.cr.execute("""
         DELETE FROM ir_model_data
-        WHERE module = 'dynamic_dashboard'
+        WHERE module IN ('dynamic_dashboard', 'dynamic_dashboard_18')
           AND model = 'ir.ui.view'
     """)
 
@@ -35,16 +35,16 @@ def pre_init_hook(env):
         DELETE FROM ir_act_window
         WHERE id IN (
             SELECT res_id FROM ir_model_data
-            WHERE module = 'dynamic_dashboard'
+            WHERE module IN ('dynamic_dashboard', 'dynamic_dashboard_18')
               AND model = 'ir.actions.act_window'
               AND name NOT IN ('action_dashboard_board', 'action_dashboard_component')
         )
     """)
     env.cr.execute("""
         DELETE FROM ir_model_data
-        WHERE module = 'dynamic_dashboard'
+        WHERE module IN ('dynamic_dashboard', 'dynamic_dashboard_18')
           AND model = 'ir.actions.act_window'
           AND name NOT IN ('action_dashboard_board', 'action_dashboard_component')
     """)
 
-    _logger.info("dynamic_dashboard: orphaned records cleaned up.")
+    _logger.info("dynamic_dashboard_18: orphaned records cleaned up.")

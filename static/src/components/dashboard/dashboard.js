@@ -2,20 +2,22 @@
 
 import { Component, useState, onWillStart, onMounted, useRef } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
+import { rpc } from "@web/core/network/rpc";
 import { CardMetric } from "../card_metric/card_metric";
 import { ChartWidget } from "../chart_widget/chart_widget";
 import { registry } from "@web/core/registry";
 
 export class DynamicDashboard extends Component {
-    static template = "dynamic_dashboard.DashboardView";
+    static template = "dynamic_dashboard_18.DashboardView";
     static components = { CardMetric, ChartWidget };
 
     setup() {
-        this.rpc = useService("rpc");
+        this.rpc = rpc;
         this.notification = useService("notification");
         this.action = useService("action");
 
-        this.gridRef = useRef("grid");
+        this.gridCardsRef = useRef("gridCards");
+        this.gridChartsRef = useRef("gridCharts");
 
         this.state = useState({
             boardData: null,
@@ -37,6 +39,24 @@ export class DynamicDashboard extends Component {
         return this.props.boardId || this.props.action?.context?.board_id;
     }
 
+    get cards() {
+        if (!this.state.boardData?.components) return [];
+        return this.state.boardData.components.filter(c => c.type === 'card_count' || c.type === 'card_sum');
+    }
+
+    get hasCards() {
+        return this.cards.length > 0;
+    }
+
+    get charts() {
+        if (!this.state.boardData?.components) return [];
+        return this.state.boardData.components.filter(c => c.type === 'chart');
+    }
+
+    get hasCharts() {
+        return this.charts.length > 0;
+    }
+
     async _loadDashboard() {
         if (!this.boardId) {
             this.state.error = "No dashboard configured for this menu.";
@@ -44,7 +64,7 @@ export class DynamicDashboard extends Component {
             return;
         }
         try {
-            const data = await this.rpc(`/dynamic_dashboard/get_data/${this.boardId}`, {});
+            const data = await this.rpc(`/dynamic_dashboard_18/get_data/${this.boardId}`, {});
             if (data.error) {
                 this.state.error = data.error;
             } else {
@@ -60,41 +80,57 @@ export class DynamicDashboard extends Component {
     }
 
     _initSortable() {
-        const grid = this.gridRef.el;
-        if (!grid || !this.state.canEdit) return;
+        if (!this.state.canEdit) return;
 
         // Dynamically load SortableJS from CDN if not already available
         if (typeof Sortable === "undefined") {
             const script = document.createElement("script");
             script.src = "https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js";
-            script.onload = () => this._createSortable(grid);
+            script.onload = () => this._createSortables();
             document.head.appendChild(script);
         } else {
-            this._createSortable(grid);
+            this._createSortables();
         }
     }
 
-    _createSortable(grid) {
+    _createSortables() {
         if (typeof Sortable === "undefined") return;
-        this._sortable = Sortable.create(grid, {
-            animation: 200,
-            handle: ".dd-drag-handle",
-            ghostClass: "dd-ghost",
-            chosenClass: "dd-chosen",
-            onEnd: () => this._saveLayout(),
-        });
+
+        const cardsEl = this.gridCardsRef?.el;
+        if (cardsEl) {
+            this._sortableCards = Sortable.create(cardsEl, {
+                animation: 200,
+                handle: ".dd-drag-handle",
+                ghostClass: "dd-ghost",
+                chosenClass: "dd-chosen",
+                onEnd: () => this._saveLayout(),
+            });
+        }
+
+        const chartsEl = this.gridChartsRef?.el;
+        if (chartsEl) {
+            this._sortableCharts = Sortable.create(chartsEl, {
+                animation: 200,
+                handle: ".dd-drag-handle",
+                ghostClass: "dd-ghost",
+                chosenClass: "dd-chosen",
+                onEnd: () => this._saveLayout(),
+            });
+        }
     }
 
     async _saveLayout() {
-        const items = [...this.gridRef.el.querySelectorAll(".dd-component")].map((el, idx) => ({
+        const cardItems = this.gridCardsRef.el ? [...this.gridCardsRef.el.querySelectorAll(".dd-component")] : [];
+        const chartItems = this.gridChartsRef.el ? [...this.gridChartsRef.el.querySelectorAll(".dd-component")] : [];
+        const items = [...cardItems, ...chartItems].map((el, idx) => ({
             id: parseInt(el.dataset.compId),
             x: parseInt(el.dataset.x || 0),
-            y: idx,   // row order after drag
+            y: idx,   // global row order after drag
             w: parseInt(el.dataset.w || 4),
             h: parseInt(el.dataset.h || 2),
         }));
         try {
-            await this.rpc("/dynamic_dashboard/save_layout", {
+            await this.rpc("/dynamic_dashboard_18/save_layout", {
                 board_id: this.boardId,
                 layout: items,
             });
@@ -142,7 +178,7 @@ export class DynamicDashboard extends Component {
     async deleteComponent(compId) {
         if (!confirm("Delete this component?")) return;
         try {
-            await this.rpc("/dynamic_dashboard/delete_component", { component_id: compId });
+            await this.rpc("/dynamic_dashboard_18/delete_component", { component_id: compId });
             await this._loadDashboard();
             this.notification.add("Component deleted.", { type: "info" });
         } catch (e) {
@@ -152,7 +188,7 @@ export class DynamicDashboard extends Component {
 
     async refreshComponent(comp) {
         try {
-            const data = await this.rpc("/dynamic_dashboard/refresh_component", {
+            const data = await this.rpc("/dynamic_dashboard_18/refresh_component", {
                 component_id: comp.id,
             });
             // Replace the component in state
@@ -176,4 +212,4 @@ export class DynamicDashboard extends Component {
 }
 
 // Register as a client action so it can be linked to menus
-registry.category("actions").add("dynamic_dashboard.DashboardClientAction", DynamicDashboard);
+registry.category("actions").add("dynamic_dashboard_18.DashboardClientAction", DynamicDashboard);

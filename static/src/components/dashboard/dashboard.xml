@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <templates xml:space="preserve">
 
-<t t-name="dynamic_dashboard.DashboardView" owl="1">
+<t t-name="dynamic_dashboard_18.DashboardView" owl="1">
     <div class="dd-dashboard">
 
         <!-- Loading state -->
@@ -40,71 +40,115 @@
                 </div>
             </div>
 
-            <!-- Grid -->
-            <div class="dd-grid" t-ref="grid">
-                <t t-foreach="state.boardData.components" t-as="comp" t-key="comp.id">
-                    <div
-                        t-att-class="'dd-component' + (state.editMode ? ' dd-edit-active' : '')"
-                        t-att-data-comp-id="comp.id"
-                        t-att-data-x="comp.pos ? comp.pos.x : 0"
-                        t-att-data-y="comp.pos ? comp.pos.y : 0"
-                        t-att-data-w="comp.pos ? comp.pos.w : 4"
-                        t-att-data-h="comp.pos ? comp.pos.h : 2"
-                        t-att-style="'grid-column: span ' + (comp.pos ? comp.pos.w : 4)">
+            <!-- Empty state -->
+            <t t-if="state.boardData.components.length === 0">
+                <div class="dd-empty">
+                    <div class="dd-empty-icon">
+                        <i class="fa fa-tachometer"/>
+                    </div>
+                    <p>No components yet.</p>
+                    <button class="btn dd-btn dd-btn-primary" t-if="state.canEdit"
+                            t-on-click="openAddComponent">
+                        <i class="fa fa-plus"/> Add your first component
+                    </button>
+                </div>
+            </t>
 
-                        <!-- Drag handle (edit mode only) -->
-                        <div class="dd-drag-handle" t-if="state.editMode">
-                            <i class="fa fa-arrows"/>
-                        </div>
+            <t t-else="">
+                <!-- Cards Section -->
+                <t t-if="hasCards">
+                    <div class="dd-section-title">Metrics &amp; KPIs</div>
+                    <div class="dd-grid dd-grid--cards" t-ref="gridCards">
+                        <t t-foreach="cards" t-as="comp" t-key="comp.id">
+                            <div
+                                t-att-class="'dd-component dd-component--card' + (state.editMode ? ' dd-edit-active' : '')"
+                                t-att-data-comp-id="comp.id"
+                                t-att-data-x="comp.pos ? comp.pos.x : 0"
+                                t-att-data-y="comp.pos ? comp.pos.y : 0"
+                                t-att-data-w="comp.pos ? comp.pos.w : 4"
+                                t-att-data-h="comp.pos ? comp.pos.h : 2"
+                                t-att-style="'grid-column: span ' + (comp.pos ? comp.pos.w : 4)">
+                                
+                                <!-- Drag handle (edit mode only) -->
+                                <div class="dd-drag-handle" t-if="state.editMode">
+                                    <i class="fa fa-arrows"/>
+                                </div>
 
-                        <!-- Edit/Delete controls (fade in on hover, shown in edit mode) -->
-                        <div class="dd-comp-actions" t-if="state.editMode">
-                            <button class="btn dd-icon-btn" title="Edit" t-on-click="() => this.openEditComponent(comp)">
-                                <i class="fa fa-cog"/>
-                            </button>
-                            <button class="btn dd-icon-btn" title="Refresh" t-on-click="() => this.refreshComponent(comp)">
-                                <i class="fa fa-refresh"/>
-                            </button>
-                            <button class="btn dd-icon-btn dd-icon-btn-danger" title="Delete" t-on-click="() => this.deleteComponent(comp.id)">
-                                <i class="fa fa-trash"/>
-                            </button>
-                        </div>
+                                <!-- Edit/Delete controls -->
+                                <div class="dd-comp-actions" t-if="state.editMode">
+                                    <button class="btn dd-icon-btn" title="Edit" t-on-click="() => this.openEditComponent(comp)">
+                                        <i class="fa fa-cog"/>
+                                    </button>
+                                    <button class="btn dd-icon-btn" title="Refresh" t-on-click="() => this.refreshComponent(comp)">
+                                        <i class="fa fa-refresh"/>
+                                    </button>
+                                    <button class="btn dd-icon-btn dd-icon-btn-danger" title="Delete" t-on-click="() => this.deleteComponent(comp.id)">
+                                        <i class="fa fa-trash"/>
+                                    </button>
+                                </div>
 
-                        <!-- Error display -->
-                        <t t-if="comp.error">
-                            <div class="dd-comp-error">
-                                <i class="fa fa-exclamation-circle"/>
-                                <t t-esc="comp.error"/>
+                                <!-- Error display -->
+                                <t t-if="comp.error">
+                                    <div class="dd-comp-error">
+                                        <i class="fa fa-exclamation-circle"/>
+                                        <t t-esc="comp.error"/>
+                                    </div>
+                                </t>
+                                <t t-else="">
+                                    <CardMetric comp="comp" onCardClick="() => this.onCardClick(comp)"/>
+                                </t>
                             </div>
                         </t>
-
-                        <!-- Card Metric -->
-                        <t t-elif="comp.type === 'card_count' or comp.type === 'card_sum'">
-                            <CardMetric comp="comp" onCardClick="() => this.onCardClick(comp)"/>
-                        </t>
-
-                        <!-- Chart -->
-                        <t t-elif="comp.type === 'chart'">
-                            <ChartWidget comp="comp"/>
-                        </t>
-
                     </div>
                 </t>
 
-                <!-- Empty state -->
-                <t t-if="state.boardData.components.length === 0">
-                    <div class="dd-empty">
-                        <div class="dd-empty-icon">
-                            <i class="fa fa-tachometer"/>
-                        </div>
-                        <p>No components yet.</p>
-                        <button class="btn dd-btn dd-btn-primary" t-if="state.canEdit"
-                                t-on-click="openAddComponent">
-                            <i class="fa fa-plus"/> Add your first component
-                        </button>
+                <!-- Charts Section -->
+                <t t-if="hasCharts">
+                    <div class="dd-section-title">Analytics &amp; Trends</div>
+                    <div class="dd-grid dd-grid--charts" t-ref="gridCharts">
+                        <t t-foreach="charts" t-as="comp" t-key="comp.id">
+                            <div
+                                t-att-class="'dd-component dd-component--chart' + (state.editMode ? ' dd-edit-active' : '')"
+                                t-att-data-comp-id="comp.id"
+                                t-att-data-x="comp.pos ? comp.pos.x : 0"
+                                t-att-data-y="comp.pos ? comp.pos.y : 0"
+                                t-att-data-w="comp.pos ? comp.pos.w : 4"
+                                t-att-data-h="comp.pos ? comp.pos.h : 2"
+                                t-att-style="'grid-column: span ' + (comp.pos ? comp.pos.w : 4)">
+                                
+                                <!-- Drag handle (edit mode only) -->
+                                <div class="dd-drag-handle" t-if="state.editMode">
+                                    <i class="fa fa-arrows"/>
+                                </div>
+
+                                <!-- Edit/Delete controls -->
+                                <div class="dd-comp-actions" t-if="state.editMode">
+                                    <button class="btn dd-icon-btn" title="Edit" t-on-click="() => this.openEditComponent(comp)">
+                                        <i class="fa fa-cog"/>
+                                    </button>
+                                    <button class="btn dd-icon-btn" title="Refresh" t-on-click="() => this.refreshComponent(comp)">
+                                        <i class="fa fa-refresh"/>
+                                    </button>
+                                    <button class="btn dd-icon-btn dd-icon-btn-danger" title="Delete" t-on-click="() => this.deleteComponent(comp.id)">
+                                        <i class="fa fa-trash"/>
+                                    </button>
+                                </div>
+
+                                <!-- Error display -->
+                                <t t-if="comp.error">
+                                    <div class="dd-comp-error">
+                                        <i class="fa fa-exclamation-circle"/>
+                                        <t t-esc="comp.error"/>
+                                    </div>
+                                </t>
+                                <t t-else="">
+                                    <ChartWidget comp="comp"/>
+                                </t>
+                            </div>
+                        </t>
                     </div>
                 </t>
-            </div>
+            </t>
 
         </t>
     </div>

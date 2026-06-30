@@ -2,6 +2,7 @@
 
 import { Component, useState, onWillStart } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
+import { rpc } from "@web/core/network/rpc";
 import { Dialog } from "@web/core/dialog/dialog";
 
 const DEFAULT_STATE = {
@@ -25,7 +26,7 @@ const DEFAULT_STATE = {
 };
 
 export class ConfigDialog extends Component {
-    static template = "dynamic_dashboard.ConfigDialog";
+    static template = "dynamic_dashboard_18.ConfigDialog";
     static components = { Dialog };
     static props = {
         boardId: Number,
@@ -35,7 +36,7 @@ export class ConfigDialog extends Component {
     };
 
     setup() {
-        this.rpc = useService("rpc");
+        this.rpc = rpc;
         this.notification = useService("notification");
 
         this.state = useState({
@@ -57,7 +58,7 @@ export class ConfigDialog extends Component {
     }
 
     async _loadModels() {
-        const models = await this.rpc("/dynamic_dashboard/get_available_models", {});
+        const models = await this.rpc("/dynamic_dashboard_18/get_available_models", {});
         this.state.availableModels = models;
         if (this.state.model_name) {
             await this._loadFields(this.state.model_name);
@@ -67,11 +68,11 @@ export class ConfigDialog extends Component {
     async _loadFields(modelName) {
         if (!modelName) return;
         const [numericFields, allFields] = await Promise.all([
-            this.rpc("/dynamic_dashboard/get_model_fields", {
+            this.rpc("/dynamic_dashboard_18/get_model_fields", {
                 model_name: modelName,
                 field_types: ["integer", "float", "monetary"],
             }),
-            this.rpc("/dynamic_dashboard/get_model_fields", {
+            this.rpc("/dynamic_dashboard_18/get_model_fields", {
                 model_name: modelName,
             }),
         ]);
@@ -142,7 +143,7 @@ export class ConfigDialog extends Component {
                 payload.group_by_field_name = this.state.group_by_field_name;
             }
 
-            const result = await this.rpc("/dynamic_dashboard/save_component", {
+            const result = await this.rpc("/dynamic_dashboard_18/save_component", {
                 board_id: this.props.boardId,
                 component_data: payload,
             });

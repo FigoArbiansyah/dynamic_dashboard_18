@@ -15,7 +15,7 @@ class DashboardBoard(models.Model):
     menu_parent_id = fields.Many2one(
         'ir.ui.menu',
         string='Parent Menu',
-        default=lambda self: self.env.ref('dynamic_dashboard.menu_dynamic_dashboard_root', raise_if_not_found=False),
+        default=lambda self: self.env.ref('dynamic_dashboard_18.menu_dynamic_dashboard_root', raise_if_not_found=False),
         help='Parent menu used when auto-generating the dashboard menu item.',
     )
     dashboard_action_id = fields.Many2one(
@@ -85,7 +85,7 @@ class DashboardBoard(models.Model):
             'name': self.name,
             'layout': json.loads(self.layout_json or '[]'),
             'components': components,
-            'can_edit': self.env.user.has_group('dynamic_dashboard.group_dashboard_manager'),
+            'can_edit': self.env.user.has_group('dynamic_dashboard_18.group_dashboard_manager'),
         }
 
     def action_view_components(self):
@@ -99,13 +99,13 @@ class DashboardBoard(models.Model):
         }
 
     def _default_parent_menu(self):
-        return self.env.ref('dynamic_dashboard.menu_dynamic_dashboard_root', raise_if_not_found=False)
+        return self.env.ref('dynamic_dashboard_18.menu_dynamic_dashboard_root', raise_if_not_found=False)
 
     def _prepare_dashboard_action_vals(self):
         self.ensure_one()
         return {
             'name': self.name,
-            'tag': 'dynamic_dashboard.DashboardClientAction',
+            'tag': 'dynamic_dashboard_18.DashboardClientAction',
             'context': {'board_id': self.id},
         }
 

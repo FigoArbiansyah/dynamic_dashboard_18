@@ -112,7 +112,7 @@ class DashboardComponent(models.Model):
             'type': self.type,
             'name': self.name,
             'label': self.label or self.name,
-            'color': self.color or '#4F46E5',
+            'color': self.color if self.color and self.color.startswith('#') else (f'#{self.color}' if self.color else '#4F46E5'),
             'card_style': self.card_style,
             'icon': self.icon,
             'prefix': self.prefix or '',
@@ -134,8 +134,8 @@ class DashboardComponent(models.Model):
         elif self.type == 'card_sum':
             if self.measure_field_id:
                 fname = self.measure_field_id.name
-                result = Model.read_group(domain, [fname], [])
-                data['value'] = round(result[0].get(fname) or 0, 2) if result else 0
+                result = Model._read_group(domain, [], [f"{fname}:sum"])
+                data['value'] = round(result[0][0] or 0, 2) if result else 0
             else:
                 data['value'] = 0
 
@@ -144,23 +144,24 @@ class DashboardComponent(models.Model):
             measure = self.measure_field_id.name if self.measure_field_id else None
 
             if gb_field:
-                fields_to_read = [measure] if measure else []
-                result = Model.read_group(domain, fields_to_read, [gb_field])
+                aggregate = f"{measure}:sum" if measure else "id:count"
+                result = Model._read_group(domain, [gb_field], [aggregate])
                 labels = []
                 values = []
-                for r in result:
-                    raw = r.get(gb_field)
-                    # Handle many2one tuples
-                    if isinstance(raw, (list, tuple)):
-                        raw = raw[1] if len(raw) > 1 else str(raw[0])
-                    labels.append(str(raw) if raw is not None else 'N/A')
-                    key = measure if measure else f'{gb_field}_count'
-                    values.append(round(r.get(key) or 0, 2))
+                for group_val, val in result:
+                    if isinstance(group_val, models.BaseModel):
+                        raw = group_val.display_name
+                    elif isinstance(group_val, tuple):
+                        raw = group_val[1] if len(group_val) > 1 else str(group_val[0])
+                    else:
+                        raw = group_val
+                    labels.append(str(raw) if raw is not None and raw is not False else 'N/A')
+                    values.append(round(val or 0, 2))
             else:
                 labels = ['Total']
                 if measure:
-                    result = Model.read_group(domain, [measure], [])
-                    values = [round(result[0].get(measure) or 0, 2)] if result else [0]
+                    result = Model._read_group(domain, [], [f"{measure}:sum"])
+                    values = [round(result[0][0] or 0, 2)] if result else [0]
                 else:
                     values = [Model.search_count(domain)]
 

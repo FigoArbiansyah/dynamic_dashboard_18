@@ -10,7 +10,7 @@ _logger = logging.getLogger(__name__)
 class DynamicDashboardController(http.Controller):
 
     @http.route(
-        '/dynamic_dashboard/get_data/<int:board_id>',
+        '/dynamic_dashboard_18/get_data/<int:board_id>',
         type='json', auth='user', methods=['POST']
     )
     def get_dashboard_data(self, board_id, **kwargs):
@@ -21,7 +21,7 @@ class DynamicDashboardController(http.Controller):
         return board.get_dashboard_data()
 
     @http.route(
-        '/dynamic_dashboard/save_layout',
+        '/dynamic_dashboard_18/save_layout',
         type='json', auth='user', methods=['POST']
     )
     def save_layout(self, board_id, layout, **kwargs):
@@ -29,7 +29,7 @@ class DynamicDashboardController(http.Controller):
         Persist drag-and-drop grid positions.
         layout: [{id, x, y, w, h}, ...]
         """
-        if not request.env.user.has_group('dynamic_dashboard.group_dashboard_manager'):
+        if not request.env.user.has_group('dynamic_dashboard_18.group_dashboard_manager'):
             return {'error': 'Permission denied.'}
 
         board = request.env['dashboard.board'].browse(board_id)
@@ -53,7 +53,7 @@ class DynamicDashboardController(http.Controller):
         return {'status': 'ok'}
 
     @http.route(
-        '/dynamic_dashboard/get_model_fields',
+        '/dynamic_dashboard_18/get_model_fields',
         type='json', auth='user', methods=['POST']
     )
     def get_model_fields(self, model_name, field_types=None, **kwargs):
@@ -76,7 +76,7 @@ class DynamicDashboardController(http.Controller):
         return result
 
     @http.route(
-        '/dynamic_dashboard/get_available_models',
+        '/dynamic_dashboard_18/get_available_models',
         type='json', auth='user', methods=['POST']
     )
     def get_available_models(self, **kwargs):
@@ -88,12 +88,12 @@ class DynamicDashboardController(http.Controller):
         return [{'id': m.id, 'name': m.name, 'model': m.model} for m in models]
 
     @http.route(
-        '/dynamic_dashboard/save_component',
+        '/dynamic_dashboard_18/save_component',
         type='json', auth='user', methods=['POST']
     )
     def save_component(self, board_id, component_data, **kwargs):
         """Create or update a single component."""
-        if not request.env.user.has_group('dynamic_dashboard.group_dashboard_manager'):
+        if not request.env.user.has_group('dynamic_dashboard_18.group_dashboard_manager'):
             return {'error': 'Permission denied.'}
 
         Component = request.env['dashboard.component']
@@ -121,12 +121,12 @@ class DynamicDashboardController(http.Controller):
         return {'id': comp.id, 'status': 'ok'}
 
     @http.route(
-        '/dynamic_dashboard/delete_component',
+        '/dynamic_dashboard_18/delete_component',
         type='json', auth='user', methods=['POST']
     )
     def delete_component(self, component_id, **kwargs):
         """Delete a component."""
-        if not request.env.user.has_group('dynamic_dashboard.group_dashboard_manager'):
+        if not request.env.user.has_group('dynamic_dashboard_18.group_dashboard_manager'):
             return {'error': 'Permission denied.'}
 
         comp = request.env['dashboard.component'].browse(component_id)
@@ -135,7 +135,7 @@ class DynamicDashboardController(http.Controller):
         return {'status': 'ok'}
 
     @http.route(
-        '/dynamic_dashboard/refresh_component',
+        '/dynamic_dashboard_18/refresh_component',
         type='json', auth='user', methods=['POST']
     )
     def refresh_component(self, component_id, **kwargs):

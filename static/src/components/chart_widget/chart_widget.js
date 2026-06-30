@@ -10,7 +10,7 @@ const CHART_COLORS = [
 ];
 
 export class ChartWidget extends Component {
-    static template = "dynamic_dashboard.ChartWidget";
+    static template = "dynamic_dashboard_18.ChartWidget";
     static props = { comp: Object };
 
     setup() {
@@ -51,16 +51,18 @@ export class ChartWidget extends Component {
 
             const comp = this.props.comp;
             const isPie = ["pie", "doughnut", "polarArea"].includes(comp.chart_type);
+            const rawColor = comp.color || "#4F46E5";
+            const color = rawColor.startsWith("#") ? rawColor : "#" + rawColor;
 
             const dataset = {
                 label: comp.chart_label || comp.name,
                 data: comp.values || [],
                 backgroundColor: isPie
                     ? (comp.values || []).map((_, i) => CHART_COLORS[i % CHART_COLORS.length])
-                    : (comp.color || "#4F46E5") + "cc",
+                    : color + "cc",
                 borderColor: isPie
                     ? (comp.values || []).map((_, i) => CHART_COLORS[i % CHART_COLORS.length])
-                    : comp.color || "#4F46E5",
+                    : color,
                 borderWidth: isPie ? 2 : 2,
                 borderRadius: comp.chart_type === "bar" ? 4 : 0,
                 fill: comp.chart_type === "line",

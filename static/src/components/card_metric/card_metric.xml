@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <templates xml:space="preserve">
 
-<t t-name="dynamic_dashboard.CardMetric" owl="1">
+<t t-name="dynamic_dashboard_18.CardMetric" owl="1">
     <div t-att-class="cardClass + (isClickable ? ' dd-card--clickable' : '')"
          t-att-style="cardStyle"
          t-on-click="handleClick">
 
         <!-- Icon -->
         <div class="dd-card-icon">
-            <i t-att-class="'fa ' + (props.comp.icon || 'fa-chart-bar')"
-               t-att-style="iconStyle"/>
+            <i t-att-class="'fa ' + (props.comp.icon || 'fa-chart-bar')"/>
         </div>
 
         <!-- Body -->
